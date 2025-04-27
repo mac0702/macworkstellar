@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AidLink - Humanitarian Aid Distribution</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@4.1.1/dist/web3.min.js"></script>
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-hand-holding-heart"></i> AidLink
+            </div>
+            <ul class="nav-links">
+                <li><a href="#dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="#tokens"><i class="fas fa-coins"></i> Aid Tokens</a></li>
+                <li><a href="#marketplace"><i class="fas fa-store"></i> Marketplace</a></li>
+                <li><a href="#analytics"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            </ul>
+            <div class="auth-section">
+                <div class="guest-buttons">
+                    <a href="/pages/auth/login.html" class="btn secondary">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a href="/pages/auth/signup.html" class="btn primary">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                </div>
+                <div class="user-profile" style="display: none;">
+                    <div class="wallet-connection">
+                        <button id="connectWallet" class="btn primary">
+                            <i class="fas fa-wallet"></i> Connect Wallet
+                        </button>
+                        <span id="walletAddress" class="wallet-address"></span>
+                        <span id="connectionStatus" class="connection-status"></span>
+                    </div>
+                    <div class="profile-menu">
+                        <button id="profileBtn" class="btn secondary">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="username">User</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a href="#profile"><i class="fas fa-user"></i> Profile</a>
+                            <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+                            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="dashboard" class="dashboard-section">
+            <h1><i class="fas fa-globe"></i> Welcome to AidLink</h1>
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <i class="fas fa-hand-holding-usd fa-2x"></i>
+                    <h3>Total Aid Distributed</h3>
+                    <p id="totalAid">0</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-store fa-2x"></i>
+                    <h3>Active Vendors</h3>
+                    <p id="activeVendors">0</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-users fa-2x"></i>
+                    <h3>Beneficiaries</h3>
+                    <p id="beneficiaries">0</p>
+                </div>
+            </div>
+
+            <div class="aid-needs-section">
+                <h2><i class="fas fa-newspaper"></i> Latest Aid Needs</h2>
+                <div class="aid-needs-grid">
+                    <div class="aid-need-card urgent">
+                        <div class="need-header">
+                            <span class="need-tag">Urgent</span>
+                            <span class="need-date">Today</span>
+                        </div>
+                        <div class="need-content">
+                            <div class="need-icon">
+                                <i class="fas fa-hospital"></i>
+                            </div>
+                            <h3>Medical Supplies Needed in Eastern Region</h3>
+                            <p>Critical shortage of medical supplies affecting 10,000 people.</p>
+                            <div class="need-details">
+                                <span class="need-stat">
+                                    <i class="fas fa-users"></i> 10,000 beneficiaries
+                                </span>
+                                <span class="need-stat">
+                                    <i class="fas fa-map-marker-alt"></i> Eastern Region
+                                </span>
+                            </div>
+                            <div class="need-progress">
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 35%"></div>
+                                </div>
+                                <span class="progress-text">35% Funded</span>
+                            </div>
+                            <button class="btn primary donate-btn">
+                                <i class="fas fa-hand-holding-heart"></i> Donate Now
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="aid-need-card">
+                        <div class="need-header">
+                            <span class="need-tag">Food</span>
+                            <span class="need-date">2 days ago</span>
+                        </div>
+                        <div class="need-content">
+                            <div class="need-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <h3>Food Security Program in Southern Districts</h3>
+                            <p>Supporting 5,000 families with essential food supplies.</p>
+                            <div class="need-details">
+                                <span class="need-stat">
+                                    <i class="fas fa-home"></i> 5,000 families
+                                </span>
+                                <span class="need-stat">
+                                    <i class="fas fa-map-marker-alt"></i> Southern Districts
+                                </span>
+                            </div>
+                            <div class="need-progress">
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 65%"></div>
+                                </div>
+                                <span class="progress-text">65% Funded</span>
+                            </div>
+                            <button class="btn primary donate-btn">
+                                <i class="fas fa-hand-holding-heart"></i> Donate Now
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="aid-need-card">
+                        <div class="need-header">
+                            <span class="need-tag">Shelter</span>
+                            <span class="need-date">3 days ago</span>
+                        </div>
+                        <div class="need-content">
+                            <div class="need-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <h3>Emergency Shelter Requirements</h3>
+                            <p>Providing temporary shelter for 200 displaced families.</p>
+                            <div class="need-details">
+                                <span class="need-stat">
+                                    <i class="fas fa-users"></i> 200 families
+                                </span>
+                                <span class="need-stat">
+                                    <i class="fas fa-clock"></i> Urgent need
+                                </span>
+                            </div>
+                            <div class="need-progress">
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 80%"></div>
+                                </div>
+                                <span class="progress-text">80% Funded</span>
+                            </div>
+                            <button class="btn primary donate-btn">
+                                <i class="fas fa-hand-holding-heart"></i> Donate Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="view-all-needs">
+                    <button class="btn secondary">
+                        <i class="fas fa-list"></i> View All Aid Needs
+                    </button>
+                </div>
+            </div>
+
+            <div class="impact-stories-section">
+                <h2><i class="fas fa-heart"></i> Impact Stories</h2>
+                <div class="stories-grid">
+                    <div class="story-card">
+                        <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                             alt="Medical aid workers helping in remote village" 
+                             class="story-image">
+                        <div class="story-content">
+                            <h3>Medical Aid Reaches Remote Villages</h3>
+                            <p>How your donations helped provide essential medical care to 1,000+ people.</p>
+                            <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="story-card">
+                        <img src="https://images.unsplash.com/photo-1497528892195-b4ee7ea4f8bc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                             alt="Children receiving educational supplies" 
+                             class="story-image">
+                        <div class="story-content">
+                            <h3>Education Support Program Success</h3>
+                            <p>500 children received educational supplies and support.</p>
+                            <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="story-card">
+                        <img src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                             alt="Food distribution center" 
+                             class="story-image">
+                        <div class="story-content">
+                            <h3>Food Security Initiative Impact</h3>
+                            <p>Successfully provided meals to 2,000 families in need through local partnerships.</p>
+                            <a href="#" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tokens" class="tokens-section">
+            <div class="section-header">
+                <h2><i class="fas fa-coins"></i> Aid Tokens</h2>
+                <div class="search-filter">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="tokenSearch" placeholder="Search tokens...">
+                    </div>
+                    <div class="filter-controls">
+                        <select id="categoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="food">Food</option>
+                            <option value="medical">Medical</option>
+                            <option value="shelter">Shelter</option>
+                            <option value="education">Education</option>
+                        </select>
+                        <select id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="transferred">Transferred</option>
+                            <option value="completed">Completed</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="token-stats">
+                <div class="stat-card">
+                    <i class="fas fa-ticket-alt"></i>
+                    <h3>Total Tokens</h3>
+                    <p id="totalTokens">0</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-exchange-alt"></i>
+                    <h3>Active Transfers</h3>
+                    <p id="activeTransfers">0</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Completed</h3>
+                    <p id="completedTokens">0</p>
+                </div>
+            </div>
+
+            <div class="token-actions">
+                <button id="createToken" class="btn primary">
+                    <i class="fas fa-plus"></i> Create New Token
+                </button>
+                <button id="importTokens" class="btn secondary">
+                    <i class="fas fa-file-import"></i> Import Tokens
+                </button>
+                <button id="exportTokens" class="btn secondary">
+                    <i class="fas fa-file-export"></i> Export Tokens
+                </button>
+            </div>
+
+            <div id="tokensList" class="tokens-list">
+                <!-- Token cards will be dynamically added here -->
+            </div>
+
+            <div class="token-pagination">
+                <button class="btn secondary" id="prevPage">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span id="pageInfo">Page 1 of 1</span>
+                <button class="btn secondary" id="nextPage">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <section id="marketplace" class="marketplace-section">
+            <div class="section-header">
+                <h2><i class="fas fa-store"></i> Aid Marketplace</h2>
+                <div class="search-filter">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="vendorSearch" placeholder="Search vendors...">
+                    </div>
+                    <div class="filter-controls">
+                        <select id="categoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="food">Food & Nutrition</option>
+                            <option value="medical">Medical Supplies</option>
+                            <option value="shelter">Shelter & Housing</option>
+                            <option value="education">Education</option>
+                            <option value="water">Water & Sanitation</option>
+                        </select>
+                        <select id="locationFilter">
+                            <option value="">All Locations</option>
+                            <option value="north">Northern Region</option>
+                            <option value="south">Southern Region</option>
+                            <option value="east">Eastern Region</option>
+                            <option value="west">Western Region</option>
+                        </select>
+                        <select id="ratingFilter">
+                            <option value="">All Ratings</option>
+                            <option value="5">5 Stars</option>
+                            <option value="4">4+ Stars</option>
+                            <option value="3">3+ Stars</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="marketplace-stats">
+                <div class="stat-card">
+                    <i class="fas fa-store-alt"></i>
+                    <h3>Active Vendors</h3>
+                    <p id="activeVendorsCount">0</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-handshake"></i>
+                    <h3>Total Transactions</h3>
+                    <p id="totalTransactions">0</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Aid Distributed</h3>
+                    <p id="aidDistributed">0 ETH</p>
+                </div>
+            </div>
+
+            <div class="marketplace-actions">
+                <button id="registerVendor" class="btn primary">
+                    <i class="fas fa-plus"></i> Register as Vendor
+                </button>
+                <button id="viewTransactions" class="btn secondary">
+                    <i class="fas fa-history"></i> Transaction History
+                </button>
+                <button id="downloadReport" class="btn secondary">
+                    <i class="fas fa-file-download"></i> Download Report
+                </button>
+            </div>
+
+            <div id="vendorsList" class="vendors-grid">
+                <!-- Vendors will be dynamically added here -->
+            </div>
+
+            <div class="marketplace-pagination">
+                <button class="btn secondary" id="prevVendorsPage">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span id="vendorsPageInfo">Page 1 of 1</span>
+                <button class="btn secondary" id="nextVendorsPage">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <section id="analytics" class="analytics-section">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-bar"></i> Impact Analytics</h2>
+                <div class="analytics-controls">
+                    <select id="dateRange" class="date-range-select">
+                        <option value="7d">Last 7 Days</option>
+                        <option value="30d">Last 30 Days</option>
+                        <option value="90d">Last 90 Days</option>
+                        <option value="1y">Last Year</option>
+                    </select>
+                    <select id="metricsSelector" class="metrics-select" multiple>
+                        <option value="aid">Aid Distribution</option>
+                        <option value="beneficiaries">Beneficiaries</option>
+                        <option value="vendors">Vendor Participation</option>
+                        <option value="geographic">Geographic Coverage</option>
+                    </select>
+                    <button id="generateReport" class="btn primary">
+                        <i class="fas fa-file-download"></i> Generate Report
+                    </button>
+                </div>
+            </div>
+
+            <div class="analytics-dashboard">
+                <div class="chart-container">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+                <div class="metrics-container">
+                    <!-- Metrics will be dynamically added here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2023 AidLink - Powered by Stellar Blockchain <i class="fas fa-link"></i></p>
+    </footer>
+
+    <!-- Enhanced Token Modal with Scrollable Content -->
+    <div id="tokenModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Create New Aid Token</h2>
+                <button class="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="tokenForm">
+                    <div class="form-group">
+                        <label for="recipient">
+                            <i class="fas fa-user"></i> Recipient
+                        </label>
+                        <input type="text" id="recipient" required 
+                               placeholder="Enter recipient name or address">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">
+                            <i class="fas fa-dollar-sign"></i> Amount
+                        </label>
+                        <div class="amount-input">
+                            <input type="number" id="amount" required 
+                                   placeholder="Enter amount" step="0.01" min="0">
+                            <span class="currency">ETH</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">
+                            <i class="fas fa-tags"></i> Category
+                        </label>
+                        <select id="category" required>
+                            <option value="">Select a category</option>
+                            <option value="food">Food</option>
+                            <option value="medical">Medical</option>
+                            <option value="shelter">Shelter</option>
+                            <option value="education">Education</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">
+                            <i class="fas fa-align-left"></i> Description
+                        </label>
+                        <textarea id="description" rows="3" 
+                                  placeholder="Enter token description or purpose"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expiry">
+                            <i class="fas fa-clock"></i> Expiry Date
+                        </label>
+                        <input type="date" id="expiry">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="transferable">
+                            <span>Make token transferable</span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn secondary close-modal">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="submit" form="tokenForm" class="btn primary">
+                    <i class="fas fa-check"></i> Create Token
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-sign-in-alt"></i> Login to AidLink</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="loginEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter your password">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <button type="button" class="btn metamask-btn">
+                        <i class="fas fa-wallet"></i> Login with MetaMask
+                    </button>
+                </div>
+                <div class="form-footer">
+                    <a href="#forgot-password">Forgot Password?</a>
+                    <span>Don't have an account? <a href="#" id="switchToRegister">Register</a></span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <h2><i class="fas fa-user-plus"></i> Create Account</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName"><i class="fas fa-user"></i> Full Name</label>
+                    <input type="text" id="registerName" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="registerEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword"><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="registerPassword" required placeholder="Create a password">
+                </div>
+                <div class="form-group">
+                    <label for="registerConfirmPassword"><i class="fas fa-lock"></i> Confirm Password</label>
+                    <input type="password" id="registerConfirmPassword" required placeholder="Confirm your password">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                    <button type="button" class="btn metamask-btn">
+                        <i class="fas fa-wallet"></i> Register with MetaMask
+                    </button>
+                </div>
+                <div class="form-footer">
+                    <span>Already have an account? <a href="#" id="switchToLogin">Login</a></span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Section -->
+    <section id="profile" class="profile-section" style="display: none;">
+        <h2><i class="fas fa-user-circle"></i> User Profile</h2>
+        <div class="profile-content">
+            <div class="profile-info">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user-circle fa-5x"></i>
+                    </div>
+                    <div class="profile-details">
+                        <h3 id="profileName">User Name</h3>
+                        <p id="profileEmail">user@example.com</p>
+                        <p id="profileWallet" class="wallet-address"></p>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <h4>Total Donations</h4>
+                        <p id="totalDonations">0 ETH</p>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-project-diagram"></i>
+                        <h4>Projects Supported</h4>
+                        <p id="projectsSupported">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-users"></i>
+                        <h4>People Helped</h4>
+                        <p id="peopleHelped">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-actions">
+                <button class="btn primary" id="editProfile">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </button>
+                <button class="btn secondary" id="changePassword">
+                    <i class="fas fa-lock"></i> Change Password
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div id="networkAlert" class="network-alert" style="display: none;">
+        <p>Please connect to the correct network</p>
+    </div>
+
+    <script type="module">
+        import { injectSpeedInsights } from '@vercel/speed-insights';
+        import { inject } from '@vercel/analytics';
+        
+        inject();
+        injectSpeedInsights();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script type="module" src="/js/main.js"></script>
+    <script type="module" src="/js/tokens.js"></script>
+    <script type="module" src="/js/marketplace.js"></script>
+    <script type="module" src="/js/analytics.js"></script>
+
+    <!-- Vendor Registration Modal -->
+    <div id="vendorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-store-alt"></i> Register as Vendor</h2>
+                <button class="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="vendorForm">
+                <div class="form-group">
+                    <label for="vendorName">
+                        <i class="fas fa-building"></i> Business Name
+                    </label>
+                    <input type="text" id="vendorName" required 
+                           placeholder="Enter your business name">
+                </div>
+
+                <div class="form-group">
+                    <label for="vendorDescription">
+                        <i class="fas fa-align-left"></i> Business Description
+                    </label>
+                    <textarea id="vendorDescription" rows="3" 
+                              placeholder="Describe your business and services"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="vendorCategories">
+                        <i class="fas fa-tags"></i> Service Categories
+                    </label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="categories" value="food">
+                            <span>Food & Nutrition</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="categories" value="medical">
+                            <span>Medical Supplies</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="categories" value="shelter">
+                            <span>Shelter & Housing</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="categories" value="education">
+                            <span>Education</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="categories" value="water">
+                            <span>Water & Sanitation</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vendorLocation">
+                        <i class="fas fa-map-marker-alt"></i> Location
+                    </label>
+                    <input type="text" id="vendorLocation" required 
+                           placeholder="Enter your business location">
+                </div>
+
+                <div class="form-group">
+                    <label for="vendorContact">
+                        <i class="fas fa-phone"></i> Contact Information
+                    </label>
+                    <input type="tel" id="vendorContact" required 
+                           placeholder="Enter contact number">
+                </div>
+
+                <div class="form-group">
+                    <label for="vendorEmail">
+                        <i class="fas fa-envelope"></i> Business Email
+                    </label>
+                    <input type="email" id="vendorEmail" required 
+                           placeholder="Enter business email">
+                </div>
+
+                <div class="form-group">
+                    <label for="vendorWebsite">
+                        <i class="fas fa-globe"></i> Website (Optional)
+                    </label>
+                    <input type="url" id="vendorWebsite" 
+                           placeholder="Enter website URL">
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="vendorTerms" required>
+                        <span>I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a></span>
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn primary">
+                        <i class="fas fa-check"></i> Register Vendor
+                    </button>
+                    <button type="button" class="btn secondary" onclick="closeModal('vendorModal')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transaction History Modal -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-history"></i> Transaction History</h2>
+                <button class="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        
+            <div class="transaction-filters">
+                <div class="form-group">
+                    <label for="transactionDateRange">Date Range</label>
+                    <select id="transactionDateRange">
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                        <option value="all">All time</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transactionType">Type</label>
+                    <select id="transactionType">
+                        <option value="all">All Types</option>
+                        <option value="purchase">Purchases</option>
+                        <option value="redemption">Redemptions</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="transaction-list">
+                <!-- Transactions will be dynamically added here -->
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn secondary" onclick="closeModal('transactionModal')">
+                    <i class="fas fa-times"></i> Close
+                </button>
+                <button class="btn primary" id="exportTransactions">
+                    <i class="fas fa-file-export"></i> Export
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
