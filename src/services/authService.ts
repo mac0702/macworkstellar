@@ -1,4 +1,4 @@
-import { Web3Service } from './web3Service';
+import { StellarService } from './stellarService';
 
 interface User {
     id: string;
@@ -17,9 +17,9 @@ interface AuthResponse {
 export class AuthService {
     private currentUser: User | null = null;
     private token: string | null = null;
-    private apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:3000/api';
+    private apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:4000/api';
 
-    constructor(private web3Service: Web3Service) {
+    constructor(private stellarService: StellarService) {
         this.checkExistingSession();
     }
 
@@ -61,16 +61,19 @@ export class AuthService {
         }
     }
 
-    async loginWithMetaMask(): Promise<AuthResponse> {
+    async loginWithFreighter(): Promise<AuthResponse> {
         try {
-            const address = await this.web3Service.connectWallet();
+            const address = await this.stellarService.connectWallet();
             
             const nonceResponse = await fetch(`${this.apiBaseUrl}/auth/nonce`);
             const { nonce } = await nonceResponse.json();
             
             const message = `Sign this message to login to AidLink\nNonce: ${nonce}`;
             
-            const signature = await this.web3Service.signMessage(message);
+            const signedXDR = await window.freighter.signTransaction(
+                message,
+                'TESTNET'
+            );
 
             const response = await fetch(`${this.apiBaseUrl}/auth/verify-signature`, {
                 method: 'POST',
@@ -80,20 +83,20 @@ export class AuthService {
                 body: JSON.stringify({
                     address,
                     message,
-                    signature,
+                    signature: signedXDR
                 }),
             });
 
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.message || 'MetaMask login failed');
+                throw new Error(error.message || 'Freighter login failed');
             }
 
             const auth: AuthResponse = await response.json();
             this.setSession(auth);
             return auth;
         } catch (error) {
-            console.error('MetaMask login error:', error);
+            console.error('Freighter login error:', error);
             throw error;
         }
     }

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { ethers } from 'ethers';
 
 interface ConnectWalletProps {
   onConnect?: (address: string) => void;
@@ -13,8 +12,8 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ onConnect }) => {
   const API_BASE_URL = 'http://localhost:4000/api';
 
   const handleDirectAddress = async (address: string) => {
-    if (!ethers.utils.isAddress(address)) {
-      setError('Invalid wallet address');
+    if (!address.match(/^G[A-Z0-9]{55}$/)) {
+      setError('Invalid Stellar address format');
       return;
     }
 
@@ -53,42 +52,36 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ onConnect }) => {
     }
   };
 
-  const connectWithMetaMask = async () => {
-    if (typeof window.ethereum === 'undefined') {
-      setError('MetaMask is not installed');
+  const connectWithFreighter = async () => {
+    if (typeof window === 'undefined' || !window.freighter) {
+      setError('Freighter wallet is not installed');
       return;
     }
 
     try {
-      const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts'
-      });
+      const publicKey = await window.freighter.getPublicKey();
 
-      const address = accounts[0];
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
-
-      // Get nonce from server
       const response = await fetch(`${API_BASE_URL}/auth/nonce`);
       if (!response.ok) {
         throw new Error('Failed to get nonce');
       }
       const { nonce } = await response.json();
 
-      // Sign message
       const message = `Connect to AidLink\nNonce: ${nonce}`;
-      const signature = await signer.signMessage(message);
+      const signedXDR = await window.freighter.signTransaction(
+        message,
+        'TESTNET'
+      );
 
-      // Verify signature
       const verifyResponse = await fetch(`${API_BASE_URL}/auth/verify-signature`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          address,
+          address: publicKey,
           message,
-          signature
+          signature: signedXDR
         }),
       });
 
@@ -100,8 +93,8 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ onConnect }) => {
       localStorage.setItem('auth_token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      setWalletAddress(address);
-      onConnect?.(address);
+      setWalletAddress(publicKey);
+      onConnect?.(publicKey);
       setIsModalOpen(false);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to connect wallet');
@@ -140,12 +133,12 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ onConnect }) => {
                   <div className="option-icon">
                     <i className="fas fa-keyboard"></i>
                   </div>
-                  <h3>Enter Wallet Address</h3>
-                  <p>Connect by entering your wallet address directly</p>
+                  <h3>Enter Stellar Address</h3>
+                  <p>Connect by entering your Stellar public key</p>
                   <div className="address-input">
                     <input
                       type="text"
-                      placeholder="Enter your wallet address (0x...)"
+                      placeholder="Enter your Stellar address (G...)"
                       className="wallet-address-input"
                       onChange={(e) => setError('')}
                       onKeyPress={(e) => {
@@ -173,12 +166,12 @@ const ConnectWallet: React.FC<ConnectWalletProps> = ({ onConnect }) => {
                   <p>Connect using your phone's wallet app</p>
                 </div>
 
-                <div className="option-card" onClick={connectWithMetaMask}>
+                <div className="option-card" onClick={connectWithFreighter}>
                   <div className="option-icon">
-                    <i className="fas fa-fox"></i>
+                    <i className="fas fa-rocket"></i>
                   </div>
-                  <h3>MetaMask</h3>
-                  <p>Connect using browser extension</p>
+                  <h3>Freighter</h3>
+                  <p>Connect using Stellar's browser wallet</p>
                 </div>
               </div>
 

@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const ethers = require('ethers');
+const StellarSdk = require('stellar-sdk');
 const jwt = require('jsonwebtoken');
+const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -9,82 +10,76 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Constants (would normally be in .env)
+const JWT_SECRET = 'temporary-secret-key';
+const DONATION_ACCOUNT = 'GCYEIQW6RCFTVMG4JWPQRS3KIGVTOSTGGM5QRJZC3SYL4RQKEEMTXK4F';
+
+// Initialize Stellar SDK (TestNet)
+const stellarServer = new StellarSdk.Server('https://horizon-testnet.stellar.org');
+const networkPassphrase = StellarSdk.Networks.TESTNET;
+
 // In-memory storage for demo (replace with DB in production)
 const users = new Map();
 const nonces = new Map();
+
+// Routes
+app.use('/api/auth', require('./routes/auth'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-// Generate nonce
-app.get('/api/auth/nonce', (req, res) => {
+// Get account info
+app.get('/api/account/:address', async (req, res) => {
   try {
-    const nonce = ethers.utils.randomBytes(32).toString('hex');
-    res.json({ nonce });
+    const { address } = req.params;
+    const account = await stellarServer.loadAccount(address);
+    res.json(account);
   } catch (error) {
-    console.error('Error generating nonce:', error);
-    res.status(500).json({ error: 'Error generating nonce' });
+    console.error('Error fetching account:', error);
+    res.status(500).json({ error: 'Failed to fetch account info' });
   }
 });
 
-// Verify signature
-app.post('/api/auth/verify-signature', (req, res) => {
+// Submit transaction
+app.post('/api/transaction/submit', async (req, res) => {
   try {
-    const { address, message, signature } = req.body;
-
-    // For direct connections without signature
-    if (signature === 'direct-connection') {
-      const token = jwt.sign(
-        { userId: address, walletAddress: address },
-        'temporary-secret-key',
-        { expiresIn: '24h' }
-      );
-
-      return res.json({
-        token,
-        user: {
-          id: address,
-          walletAddress: address,
-          name: `User-${address.slice(2, 8)}`,
-          email: `${address.toLowerCase()}@placeholder.com`,
-          role: 'user'
-        }
-      });
-    }
-
-    // Verify the signature
-    const signerAddr = ethers.utils.verifyMessage(message, signature);
-    
-    if (signerAddr.toLowerCase() !== address.toLowerCase()) {
-      return res.status(401).json({ error: 'Invalid signature' });
-    }
-
-    // Generate JWT
-    const token = jwt.sign(
-      { userId: address, walletAddress: address },
-      'temporary-secret-key',
-      { expiresIn: '24h' }
+    const { signedXDR } = req.body;
+    const transaction = StellarSdk.TransactionBuilder.fromXDR(
+      signedXDR,
+      networkPassphrase
     );
-
-    res.json({
-      token,
-      user: {
-        id: address,
-        walletAddress: address,
-        name: `User-${address.slice(2, 8)}`,
-        email: `${address.toLowerCase()}@placeholder.com`,
-        role: 'user'
-      }
-    });
+    const result = await stellarServer.submitTransaction(transaction);
+    res.json(result);
   } catch (error) {
-    console.error('Auth error:', error);
-    res.status(500).json({ error: 'Authentication failed' });
+    console.error('Transaction submission error:', error);
+    res.status(500).json({ error: 'Failed to submit transaction' });
   }
 });
+
+// Error handling middleware
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Using Stellar network: ${networkPassphrase}`);
+}).on('error', (e) => {
+  if (e.code === 'EADDRINUSE') {
+    console.log(`Port ${PORT} is busy, trying port ${PORT + 1}...`);
+    setTimeout(() => {
+      server.close();
+      server.listen(PORT + 1);
+    }, 1000);
+  }
+});
+
+// Handle process termination
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Closing server...');
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
 });

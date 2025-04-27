@@ -8,7 +8,7 @@ const auth = (req, res, next) => {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, 'temporary-secret-key');
     req.user = decoded;
     next();
   } catch (error) {
